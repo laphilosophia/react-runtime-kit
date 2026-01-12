@@ -2,6 +2,25 @@
   "name": "react-runtime-kit",
   "version": "1.0.0",
   "description": "Dev tools that actually spark joy.",
+  "author": "laphilosophia",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laphilosophia/react-runtime-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/laphilosophia/react-runtime-kit/issues"
+  },
+  "homepage": "https://github.com/laphilosophia/react-runtime-kit#readme",
+  "keywords": [
+    "react",
+    "devtools",
+    "telemetry",
+    "debugging",
+    "chaos-engineering",
+    "state-management",
+    "developer-experience"
+  ],
   "main": "./dist/index.js",
   "type": "module",
   "module": "./dist/index.mjs",
