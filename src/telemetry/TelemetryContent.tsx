@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useSyncExternalStore } from 'react';
+import { JsonValue } from '../components/JsonValue.js';
 import { chaosStore } from './ChaosStore.js';
 import { consoleStore, type ConsoleSpan } from './ConsoleInterceptor.js';
 import { telemetryStore, type TelemetrySpan } from './TelemetryStore.js';
@@ -180,7 +181,7 @@ export const ConsoleTabContent = () => {
   }
 
   return (
-    <div style={contentPadding}>
+    <div style={{ ...contentPadding, textAlign: 'left' }}>
       {visibleLogs.map((log: ConsoleSpan) => (
         <div
           key={log.id}
@@ -192,6 +193,7 @@ export const ConsoleTabContent = () => {
             borderBottom: '1px solid rgba(75, 85, 99, 0.2)',
             backgroundColor: log.level === 'error' ? 'rgba(239, 68, 68, 0.1)' :
               log.level === 'warn' ? 'rgba(245, 158, 11, 0.05)' : undefined,
+            textAlign: 'left',
           }}
         >
           <span style={{
@@ -200,19 +202,25 @@ export const ConsoleTabContent = () => {
             color: getConsoleColor(log.level),
             minWidth: '2.5rem',
             textTransform: 'uppercase',
+            flexShrink: 0,
           }}>
             {log.level}
           </span>
-          <span style={{
+          <div style={{
             flex: 1,
             color: '#e5e7eb',
             fontFamily: 'ui-monospace, monospace',
             fontSize: '0.7rem',
-            wordBreak: 'break-word',
-            lineHeight: 1.4,
+            lineHeight: 1.5,
+            overflow: 'hidden',
+            textAlign: 'left',
           }}>
-            {log.message}
-          </span>
+            {log.args.map((arg, i) => (
+              <span key={i} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'top' }}>
+                <JsonValue value={arg} maxDepth={2} />
+              </span>
+            ))}
+          </div>
         </div>
       ))}
     </div>

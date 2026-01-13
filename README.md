@@ -12,7 +12,7 @@ This toolkit gives you superpowers during development:
 | Feature | Description |
 |---------|-------------|
 | 📡 **Network Monitor** | Real-time Gantt-style timeline of all API requests |
-| 🖥️ **Console Capture** | See console.log/warn/error in the same panel |
+| 🖥️ **Console Capture** | Collapsible JSON viewer for console.log/warn/error |
 | 🌪️ **Chaos Mode** | Inject latency & random failures to test error handling |
 | 🔄 **Request Replay** | One-click replay of any captured request |
 | 💾 **State Hydrator** | Save/restore app state with named scenarios |
