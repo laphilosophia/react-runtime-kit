@@ -17,9 +17,11 @@ const STORAGE_KEY = '__dev_chaos_config';
 class ChaosStore {
   private config: ChaosConfig;
   private listeners = new Set<() => void>();
+  private cachedConfig: ChaosConfig;
 
   constructor() {
     this.config = this.loadFromStorage();
+    this.cachedConfig = { ...this.config };
   }
 
   private loadFromStorage(): ChaosConfig {
@@ -38,13 +40,18 @@ class ChaosStore {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config));
   }
 
+  private updateCachedConfig(): void {
+    this.cachedConfig = { ...this.config };
+  }
+
   getConfig = (): ChaosConfig => {
-    return { ...this.config };
+    return this.cachedConfig;
   };
 
   setEnabled(enabled: boolean): void {
     this.config.enabled = enabled;
     this.saveToStorage();
+    this.updateCachedConfig();
     this.notify();
   }
 
@@ -52,12 +59,14 @@ class ChaosStore {
     this.config.latencyMin = min;
     this.config.latencyMax = max;
     this.saveToStorage();
+    this.updateCachedConfig();
     this.notify();
   }
 
   setFailureRate(rate: number): void {
     this.config.failureRate = Math.max(0, Math.min(1, rate));
     this.saveToStorage();
+    this.updateCachedConfig();
     this.notify();
   }
 

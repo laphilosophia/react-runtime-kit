@@ -12,6 +12,7 @@ class ConsoleStore {
   private logs: ConsoleSpan[] = [];
   private listeners = new Set<() => void>();
   private maxLogs = 100;
+  private cachedSnapshot: ConsoleSpan[] = [];
 
   addLog(level: ConsoleLevel, args: unknown[]) {
     const message = args
@@ -38,11 +39,16 @@ class ConsoleStore {
       this.logs = this.logs.slice(-this.maxLogs);
     }
 
+    this.updateSnapshot();
     this.notify();
   }
 
+  private updateSnapshot() {
+    this.cachedSnapshot = [...this.logs];
+  }
+
   getSnapshot = (): ConsoleSpan[] => {
-    return [...this.logs];
+    return this.cachedSnapshot;
   };
 
   subscribe = (listener: () => void): (() => void) => {

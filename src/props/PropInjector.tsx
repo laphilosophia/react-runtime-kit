@@ -8,7 +8,7 @@ interface PropOverride {
   [propName: string]: PropValue;
 }
 
-interface RegisteredComponent {
+export interface RegisteredComponent {
   id: string;
   displayName: string;
   props: Record<string, PropValue>;
@@ -21,6 +21,12 @@ class PropStore {
   private registry: Map<string, RegisteredComponent> = new Map();
   private listeners = new Set<() => void>();
   private enabled = false;
+
+  // Cached snapshots for useSyncExternalStore
+  private cachedRegistry: RegisteredComponent[] = [];
+  private cachedAllOverrides: Map<string, PropOverride> = new Map();
+  private cachedOverridesById: Map<string, PropOverride> = new Map();
+  private emptyOverride: PropOverride = {};
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
@@ -38,12 +44,15 @@ class PropStore {
     propTypes: Record<string, 'string' | 'number' | 'boolean'>
   ): void {
     this.registry.set(id, { id, displayName, props, propTypes });
+    this.updateSnapshots();
     this.notify();
   }
 
   unregister(id: string): void {
     this.registry.delete(id);
     this.overrides.delete(id);
+    this.cachedOverridesById.delete(id);
+    this.updateSnapshots();
     this.notify();
   }
 
@@ -51,24 +60,28 @@ class PropStore {
     const current = this.overrides.get(id) ?? {};
     current[propName] = value;
     this.overrides.set(id, current);
+    this.cachedOverridesById.set(id, { ...current });
+    this.updateSnapshots();
     this.notify();
   }
 
   clearOverrides(id: string): void {
     this.overrides.delete(id);
+    this.cachedOverridesById.set(id, {});
+    this.updateSnapshots();
     this.notify();
   }
 
-  getOverrides(id: string): PropOverride {
-    return this.overrides.get(id) ?? {};
-  }
+  getOverrides = (id: string): PropOverride => {
+    return this.cachedOverridesById.get(id) ?? this.emptyOverride;
+  };
 
   getRegistry = (): RegisteredComponent[] => {
-    return Array.from(this.registry.values());
+    return this.cachedRegistry;
   };
 
   getAllOverrides = (): Map<string, PropOverride> => {
-    return new Map(this.overrides);
+    return this.cachedAllOverrides;
   };
 
   subscribe = (listener: () => void): (() => void) => {
@@ -77,6 +90,11 @@ class PropStore {
       this.listeners.delete(listener);
     };
   };
+
+  private updateSnapshots(): void {
+    this.cachedRegistry = Array.from(this.registry.values());
+    this.cachedAllOverrides = new Map(this.overrides);
+  }
 
   private notify(): void {
     this.listeners.forEach((l) => l());
